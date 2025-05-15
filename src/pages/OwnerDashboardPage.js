@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
-import AddProductForm from '../components/products/AddProductForm'; // Import the form
 import OwnerProductList from '../components/products/OwnerProductList'; // Import the list
+import AddProductForm from '../components/products/AddProductForm'; // Import the form
 
 const OwnerDashboardPage = () => {
   const [showAddProductForm, setShowAddProductForm] = useState(false);
 
   const handleProductAdded = () => {
     setShowAddProductForm(false);
-    // Later: refresh product list here
-    // console.log("Product added, refresh list!"); 
+    // Refresh the product list will happen automatically via the onSnapshot in OwnerProductList
   };
 
   return (
@@ -21,7 +20,7 @@ const OwnerDashboardPage = () => {
           <h2 className="text-2xl font-semibold text-gray-700">Product Management</h2>
           <button 
             onClick={() => setShowAddProductForm(!showAddProductForm)}
-            className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-300"
+            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
           >
             {showAddProductForm ? 'Cancel' : 'Add New Product'}
           </button>
@@ -31,35 +30,32 @@ const OwnerDashboardPage = () => {
         {showAddProductForm && (
           <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
             <h3 className="text-xl font-semibold text-gray-700 mb-4">Add New Product</h3>
-            {/* Placeholder for AddProductForm component */}
-            {/* <p className="text-gray-600">AddProductForm component will go here.</p> */}
             <AddProductForm onProductAdded={handleProductAdded} />
           </div>
         )}
 
         {/* Product List Section */}
         <div className="bg-white p-6 rounded-lg shadow-lg">
-          <h3 className="text-xl font-semibold text-gray-700 mb-4">Your Products</h3>
           <OwnerProductList />
         </div>
       </section>
 
-      {/* Other Dashboard Sections (Orders, Chat, etc. - can be added later or kept as is) */}
+      {/* Other Dashboard Sections */}
       <h2 className="text-2xl font-semibold text-gray-700 mb-6">Other Tools</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white p-6 rounded-lg shadow-lg">
           <h2 className="text-xl font-semibold text-gray-700 mb-3">Order Tracking</h2>
-          <p className="text-gray-600 mb-4">View and process customer orders.</p>
-          <button className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-300">
+          <p className="text-gray-600">View and manage customer orders.</p>
+          <button className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors">
             View Orders
           </button>
         </div>
-
+        
         <div className="bg-white p-6 rounded-lg shadow-lg">
-          <h2 className="text-xl font-semibold text-gray-700 mb-3">Customer Chat</h2>
-          <p className="text-gray-600 mb-4">Respond to customer inquiries.</p>
-          <button className="bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-300">
-            Open Chat
+          <h2 className="text-xl font-semibold text-gray-700 mb-3">Customer Messages</h2>
+          <p className="text-gray-600">Respond to customer inquiries.</p>
+          <button className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors">
+            View Messages
           </button>
         </div>
       </div>

@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Link, useNavigate } from 'react-router-dom';
 import { Toaster, toast } from 'react-hot-toast';
 import { useAuth } from './context/AuthContext'; // For Navbar
+import { CartProvider } from './context/CartContext'; // Import CartProvider
 
 // Page Imports
 import HomePage from './pages/HomePage';
@@ -12,6 +13,7 @@ import CartPage from './pages/CartPage';
 import OwnerDashboardPage from './pages/OwnerDashboardPage';
 import ChatPage from './pages/ChatPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import AdminSetupPage from './pages/AdminSetupPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 
 // Navbar Component (Consider moving to src/components/layout/Navbar.js later)
@@ -41,9 +43,12 @@ const Navbar = () => {
           {currentUser ? (
             <>
               <Link to="/cart" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700 transition-colors">Cart</Link>
-              {/* We can add a check for owner role here later to show Dashboard selectively */}
-              <Link to="/owner/dashboard" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700 transition-colors">Dashboard</Link>
+              {/* Only show Dashboard link to users with owner role */}
+              {currentUser.role === 'owner' && (
+                <Link to="/owner/dashboard" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700 transition-colors">Dashboard</Link>
+              )}
               <Link to="/chat" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700 transition-colors">Chat</Link>
+              <Link to="/admin-setup" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700 transition-colors">Admin Setup</Link>
               <button 
                 onClick={handleLogout} 
                 className="px-3 py-2 rounded-md text-sm font-medium bg-red-600 hover:bg-red-700 transition-colors"
@@ -73,24 +78,27 @@ const Footer = () => (
 function App() {
   return (
     <Router>
-      <Toaster position="top-center" reverseOrder={false} />
-      <div className="flex flex-col min-h-screen">
-        <Navbar />
-        <main className="flex-grow container mx-auto px-4 py-8">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignupPage />} />
-            <Route path="/products" element={<ProductsPage />} />
-            <Route path="/cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
-            <Route path="/owner/dashboard" element={<ProtectedRoute roles={['owner']}><OwnerDashboardPage /></ProtectedRoute>} />
-            <Route path="/chat" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} /> {/* Example: Protect ChatPage too */}
-            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-            {/* Add more routes as needed */}
-          </Routes>
-        </main>
-        <Footer />
-      </div>
+      <CartProvider>
+        <Toaster position="top-center" reverseOrder={false} />
+        <div className="flex flex-col min-h-screen">
+          <Navbar />
+          <main className="flex-grow container mx-auto px-4 py-8">
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/signup" element={<SignupPage />} />
+              <Route path="/products" element={<ProductsPage />} />
+              <Route path="/cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
+              <Route path="/owner/dashboard" element={<ProtectedRoute roles={['owner']}><OwnerDashboardPage /></ProtectedRoute>} />
+              <Route path="/chat" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
+              <Route path="/admin-setup" element={<AdminSetupPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              {/* Add more routes as needed */}
+            </Routes>
+          </main>
+          <Footer />
+        </div>
+      </CartProvider>
     </Router>
   );
 }

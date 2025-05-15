@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../firebase';
-import { collection, query, onSnapshot, orderBy, limit } from 'firebase/firestore';
+import { collection, query, onSnapshot, orderBy } from 'firebase/firestore';
+import { useCart } from '../../context/CartContext';
 
-// Placeholder for a single product card - consider moving to its own component file if it grows
 const ProductCard = ({ product }) => {
+  const { addToCart } = useCart();
+
   return (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105">
       {product.imageUrl ? (
@@ -21,7 +23,7 @@ const ProductCard = ({ product }) => {
           <p className="text-2xl font-bold text-indigo-600">${parseFloat(product.price).toFixed(2)}</p>
           <button 
             className="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-300 text-sm"
-            onClick={() => alert(`TODO: Add ${product.name} to cart`)}
+            onClick={() => addToCart(product)}
           >
             Add to Cart
           </button>
@@ -37,24 +39,42 @@ const CustomerProductList = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    console.log('Starting to fetch products...'); // Debug log
     setLoading(true);
-    // Query to get products, ordered by creation date, limited for display
-    const q = query(collection(db, 'products'), orderBy("createdAt", "desc"), limit(20)); // Example: limit to 20 products
+    setError(null);
 
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const productsData = [];
-      querySnapshot.forEach((doc) => {
-        productsData.push({ ...doc.data(), id: doc.id });
+    try {
+      const q = query(
+        collection(db, 'products'),
+        orderBy('createdAt', 'desc')
+      );
+
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        console.log('Got snapshot, docs count:', querySnapshot.size); // Debug log
+        const productsData = [];
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          console.log('Product:', doc.id, data); // Debug log
+          productsData.push({
+            ...data,
+            id: doc.id,
+            price: parseFloat(data.price) // Ensure price is a number
+          });
+        });
+        setProducts(productsData);
+        setLoading(false);
+      }, (err) => {
+        console.error("Error fetching products for customers: ", err);
+        setError("Failed to load products. Please try again soon.");
+        setLoading(false);
       });
-      setProducts(productsData);
-      setLoading(false);
-    }, (err) => {
-      console.error("Error fetching products for customers: ", err);
-      setError("Failed to load products. Please try again soon.");
-      setLoading(false);
-    });
 
-    return () => unsubscribe(); // Cleanup subscription on unmount
+      return () => unsubscribe();
+    } catch (err) {
+      console.error("Error setting up products query: ", err);
+      setError("Failed to set up products query. Please try again soon.");
+      setLoading(false);
+    }
   }, []);
 
   if (loading) {

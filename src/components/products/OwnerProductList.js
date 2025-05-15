@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { db } from '../../firebase';
-import { collection, query, onSnapshot, orderBy } from 'firebase/firestore';
-// import { useAuth } from '../../context/AuthContext'; // Needed if filtering by ownerId
+import { db, storage } from '../../firebase';
+import { collection, query, onSnapshot, orderBy, deleteDoc, doc } from 'firebase/firestore';
+import { ref, deleteObject } from 'firebase/storage';
+import { toast } from 'react-hot-toast';
 
 const OwnerProductList = () => {
-  // const { currentUser } = useAuth(); // Needed if filtering by ownerId
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [deletingProduct, setDeletingProduct] = useState(null);
 
   useEffect(() => {
     setLoading(true);
-    // const q = query(collection(db, 'products'), where("ownerId", "==", currentUser.uid), orderBy("createdAt", "desc")); // Example if filtering by owner
     const q = query(collection(db, 'products'), orderBy("createdAt", "desc"));
 
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -27,8 +27,39 @@ const OwnerProductList = () => {
       setLoading(false);
     });
 
-    return () => unsubscribe(); // Cleanup subscription on unmount
-  }, []); // Add currentUser.uid to dependency array if filtering by owner
+    return () => unsubscribe();
+  }, []);
+
+  const handleDelete = async (product) => {
+    if (!window.confirm(`Are you sure you want to delete "${product.name}"?`)) {
+      return;
+    }
+
+    setDeletingProduct(product.id);
+    try {
+      // Delete the product document from Firestore
+      await deleteDoc(doc(db, 'products', product.id));
+
+      // If there's an image URL and it's from Firebase Storage, delete it too
+      if (product.imageUrl && product.imageUrl.includes('firebasestorage.googleapis.com')) {
+        try {
+          // Extract the path from the URL
+          const imageRef = ref(storage, product.imageUrl);
+          await deleteObject(imageRef);
+        } catch (imageError) {
+          console.error("Error deleting image: ", imageError);
+          // Continue even if image deletion fails
+        }
+      }
+
+      toast.success('Product deleted successfully!');
+    } catch (error) {
+      console.error("Error deleting product: ", error);
+      toast.error('Failed to delete product. Please try again.');
+    } finally {
+      setDeletingProduct(null);
+    }
+  };
 
   if (loading) {
     return <p className="text-center text-gray-500">Loading products...</p>;
@@ -67,8 +98,13 @@ const OwnerProductList = () => {
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${parseFloat(product.price).toFixed(2)}</td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{product.stockQuantity}</td>
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <button className="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
-                <button className="text-red-600 hover:text-red-900">Delete</button>
+                <button 
+                  className="text-red-600 hover:text-red-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={() => handleDelete(product)}
+                  disabled={deletingProduct === product.id}
+                >
+                  {deletingProduct === product.id ? 'Deleting...' : 'Delete'}
+                </button>
               </td>
             </tr>
           ))}
