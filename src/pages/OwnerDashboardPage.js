@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom'; // Import Link component
 import OwnerProductList from '../components/products/OwnerProductList'; // Import the list
 import AddProductForm from '../components/products/AddProductForm'; // Import the form
 
@@ -46,9 +47,12 @@ const OwnerDashboardPage = () => {
         <div className="bg-white p-6 rounded-lg shadow-lg">
           <h2 className="text-xl font-semibold text-gray-700 mb-3">Order Tracking</h2>
           <p className="text-gray-600">View and manage customer orders.</p>
-          <button className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors">
+          <Link 
+            to="/admin/orders" 
+            className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors inline-block"
+          >
             View Orders
-          </button>
+          </Link>
         </div>
         
         <div className="bg-white p-6 rounded-lg shadow-lg">

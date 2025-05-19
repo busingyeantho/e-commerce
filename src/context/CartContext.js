@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { toast } from 'react-hot-toast';
 import { useAuth } from './AuthContext';
 
@@ -13,9 +13,9 @@ export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
   
   // Get a unique key for the current user's cart
-  const getCartKey = () => {
+  const getCartKey = useCallback(() => {
     return currentUser ? `cart_${currentUser.uid}` : 'cart_guest';
-  };
+  }, [currentUser]);
 
   // Load cart from localStorage when component mounts or user changes
   useEffect(() => {

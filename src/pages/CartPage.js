@@ -110,6 +110,25 @@ const CartPage = () => {
               </tbody>
             </table>
           </div>
+
+          <div className="mt-6">
+            <div className="flex justify-between items-center">
+              <Link 
+                to="/products"
+                className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
+              >
+                Continue Shopping
+              </Link>
+              
+              <Link 
+                to="/checkout"
+                className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out"
+              >
+                Proceed to Checkout
+              </Link>
+            </div>
+          </div>
+
           <div className="mt-8 flex flex-col items-end">
             <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-6">
               <h2 className="text-xl font-semibold text-gray-800 mb-4">Cart Summary</h2>

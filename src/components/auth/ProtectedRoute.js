@@ -25,6 +25,13 @@ const ProtectedRoute = ({ children, roles }) => {
     return <Navigate to="/" replace />;
   }
 
+  // Special case for admin/orders - allow both admin and owner roles
+  const isAdminOrdersPage = location.pathname === '/admin/orders';
+  if (isAdminOrdersPage && currentUser.role !== 'admin' && currentUser.role !== 'owner') {
+    toast.error("You are not authorized to view this page.");
+    return <Navigate to="/" replace />;
+  }
+
   return children; // User is authenticated (and has the role if specified), render the child component
 };
 
